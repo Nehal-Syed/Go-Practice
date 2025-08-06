@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Go + SQLite CRUD</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+    input, button { padding: 6px 10px; margin: 5px 0; }
+    .item { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <h1>CRUD App</h1>
+
+  <h3>Add Item</h3>
+  <input id="newItem" placeholder="Enter item name" />
+  <button onclick="addItem()">Add</button>
+
+  <h3>Update Item</h3>
+  <input id="updateId" placeholder="ID to update" />
+  <input id="updateName" placeholder="New name" />
+  <button onclick="updateItem()">Update</button>
+
+  <h3>Delete Item</h3>
+  <input id="deleteId" placeholder="ID to delete" />
+  <button onclick="deleteItem()">Delete</button>
+
+  <h3>Items List</h3>
+  <button onclick="loadItems()">Load All</button>
+  <div id="items"></div>
+
+  <script>
+    const API = "/items";
+
+    function addItem() {
+      const name = document.getElementById("newItem").value;
+      fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      }).then(() => loadItems());
+    }
+
+    function updateItem() {
+      const id = document.getElementById("updateId").value;
+      const name = document.getElementById("updateName").value;
+      fetch(`${API}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      }).then(() => loadItems());
+    }
+
+    function deleteItem() {
+      const id = document.getElementById("deleteId").value;
+      fetch(`${API}/${id}`, { method: "DELETE" }).then(() => loadItems());
+    }
+
+    function loadItems() {
+      fetch(API)
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById("items");
+          container.innerHTML = "";
+          for (const id in data) {
+            const div = document.createElement("div");
+            div.className = "item";
+            div.innerHTML = `<strong>ID:</strong> ${id} — <strong>Name:</strong> ${data[id]}`;
+            container.appendChild(div);
+          }
+        });
+    }
+  </script>
+</body>
+</html>
